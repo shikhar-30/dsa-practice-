@@ -11,46 +11,34 @@
  */
 class Solution {
 public:
+    TreeNode* lca(TreeNode* root, TreeNode* p, TreeNode* q){
+        if(!root || root==p || root==q) return root;
+        TreeNode* left=lca(root->left,p,q);
+        TreeNode* right=lca(root->right,p,q);
+        if(left==NULL) return right;
+        else if(right==NULL) return left;
+        return root;
+    }
     TreeNode* subtreeWithAllDeepest(TreeNode* root) {
-        if (!root) return nullptr;
-
-        unordered_map<TreeNode*, TreeNode*> parent;
+        if(!root) return root;
         queue<TreeNode*> q;
         q.push(root);
-        parent[root] = nullptr;
-
-        vector<TreeNode*> lastLevel;
-
-        while (!q.empty()) {
-            int size = q.size();
-            lastLevel.clear();
-
-            for (int i = 0; i < size; i++) {
-                TreeNode* node = q.front();
+        vector<TreeNode*> leafs;
+        while(!q.empty()){
+            int size=q.size();
+            leafs.clear();
+            for(int i=0;i<size;i++){
+                TreeNode* node=q.front();
                 q.pop();
-                lastLevel.push_back(node);
-
-                if (node->left) {
-                    parent[node->left] = node;
-                    q.push(node->left);
-                }
-                if (node->right) {
-                    parent[node->right] = node;
-                    q.push(node->right);
-                }
+                leafs.push_back(node);
+                if(node->left) q.push(node->left);
+                if(node->right) q.push(node->right);
             }
         }
-
-        unordered_set<TreeNode*> deepest(lastLevel.begin(), lastLevel.end());
-
-        while (deepest.size() > 1) {
-            unordered_set<TreeNode*> next;
-            for (auto node : deepest) {
-                next.insert(parent[node]);
-            }
-            deepest = next;
+        TreeNode* ans=leafs[0];
+        for(int i=1;i<leafs.size();i++){
+            ans=lca(root,ans,leafs[i]);
         }
-
-        return *deepest.begin();
+        return ans;
     }
 };
